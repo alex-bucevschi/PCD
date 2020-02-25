@@ -24,9 +24,6 @@ def serverStreaming(option):
 		ServerSocket.listen(1)
 		conn, addr = ServerSocket.accept()
 	
-	#print("UDP server up and listening")
-	#msgFromServer       = "Hello UDP Client"
-	#bytesToSend         = str.encode(msgFromServer)
 
 	while(True):
 		if option == "TCP":
@@ -39,13 +36,7 @@ def serverStreaming(option):
 		numberOfBytesRead = bytesRead + len(message) 
 		if message == "STOP":
 			break
-			
-		#clientMsg = "Message from Client:{}".format(message)
-		#clientIP  = "Client IP Address:{}".format(address)
-		#print(clientMsg)
-		#print(clientIP)
-		#UDPServerSocket.sendto(bytesToSend, address)
-		
+	
 	return (numberOfMessagesRead, numberOfBytesRead)
 	
 def main():
