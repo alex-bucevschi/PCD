@@ -15,26 +15,16 @@ def receiveFile(option, file, ServerSocket):
         os.makedirs(directories, exist_ok=True)
     
     f = open(file,'wb')
-    if option == "TCP":
-        message = ServerSocket.recv(bufferSize)
-    else:
-        bytesAddressPair = ServerSocket.recvfrom(bufferSize)
-        message = ServerSocket.recv(bufferSize)
-        #address = bytesAddressPair[1]
+    message = ServerSocket.recv(bufferSize)
         
     while(message):
         numberOfMessagesRead = numberOfMessagesRead + 1
         numberOfBytesRead = numberOfBytesRead + len(message)
-        #print(numberOfBytesRead, message)
+        print(numberOfBytesRead, message)
         if  message.decode("utf-8")  == "[END]":
             break
         f.write(message)
-        if option == "TCP":
-            message = ServerSocket.recv(bufferSize)
-        else:
-            bytesAddressPair = ServerSocket.recvfrom(bufferSize)
-            message = bytesAddressPair[0]
-            address = bytesAddressPair[1]
+        message = ServerSocket.recv(bufferSize)
         f.close()
     return (numberOfMessagesRead, numberOfBytesRead)
 def serverStreaming(option):
@@ -52,34 +42,34 @@ def serverStreaming(option):
     ServerSocket = socket.socket(family=socket.AF_INET, type=sck)
     ServerSocket.bind((localIP, localPort))
     if option == "TCP":
-        ServerSocket.listen(1)
+        ServerSocket.listen(10)
         conn, addr = ServerSocket.accept()
     
 
     while(True):
         if option == "TCP":
             message = conn.recv(bufferSize)
+            numberOfMessagesRead = numberOfMessagesRead + 1
+            numberOfBytesRead = numberOfBytesRead + len(message) 
         else:
-            bytesAddressPair = ServerSocket.recvfrom(bufferSize)
-            message = bytesAddressPair[0]
-            address = bytesAddressPair[1]
-        if(len(message)):
-            if option == "TCP":
-                resp = receiveFile(option, message, conn)   
-            else:
-                resp = receiveFile(option, message, ServerSocket)   
-            numberOfMessagesRead = numberOfMessagesRead + resp[0]
-            numberOfBytesRead = numberOfBytesRead + resp[1]
+            message = ServerSocket.recv(bufferSize)
+            numberOfMessagesRead = numberOfMessagesRead + 1
+            numberOfBytesRead = numberOfBytesRead + len(message) 
+                    
+            if message.decode("utf-8") == "[STOP]":
+                break
+    
+        if option == "TCP":
+            resp = receiveFile(option, message, conn)   
         else:
-            break
+            resp = receiveFile(option, message, ServerSocket)   
+        numberOfMessagesRead = numberOfMessagesRead + resp[0]
+        numberOfBytesRead = numberOfBytesRead + resp[1]
+        #else:
+        #    break
 
-        numberOfMessagesRead = numberOfMessagesRead + 1
-        numberOfBytesRead = numberOfBytesRead + len(message) 
         #print(numberOfBytesRead, message)
         
-        if message.decode("utf-8") == "[STOP]":
-            break
-    
     return (numberOfMessagesRead, numberOfBytesRead)
     
 def main():

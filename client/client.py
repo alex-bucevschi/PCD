@@ -17,7 +17,7 @@ def sendFile(option, file, ClientSocket):
     #print(numberOfBytesSent, file)
     
     f = open(file,'rb')
-    message = f.read()
+    message = f.read(bufferSize)
     if(option == "TCP"):
         ClientSocket.sendall(message)
         #ClientSocket.sendall(bytearray("[END]", 'utf-8'))
